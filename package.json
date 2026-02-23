@@ -1,0 +1,23 @@
+{
+  "name": "vibe-coding",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter agent-api dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:website": "pnpm --filter website dev",
+    "dev:all": "pnpm --filter agent-api dev & pnpm --filter frontend dev & wait",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write ."
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4"
+  }
+}
