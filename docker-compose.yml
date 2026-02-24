@@ -9,6 +9,12 @@ services:
     env_file: .env
     environment:
       - NODE_OPTIONS=--max-old-space-size=512
+      - WEBSITE_REPO_URL=${WEBSITE_REPO_URL}
+      - WEBSITE_REPO_BRANCH=${WEBSITE_REPO_BRANCH:-main}
+      - WEBSITE_GIT_TOKEN=${WEBSITE_GIT_TOKEN:-}
+      - WEBSITE_WORKSPACE_DIR=/app/workspace
+    volumes:
+      - workspace:/app/workspace
     restart: unless-stopped
 
   frontend:
@@ -20,3 +26,6 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+
+volumes:
+  workspace:

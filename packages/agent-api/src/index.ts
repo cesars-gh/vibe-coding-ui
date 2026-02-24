@@ -2,8 +2,16 @@ import { serve } from '@hono/node-server';
 import { createNodeWebSocket } from '@hono/node-ws';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { setWebsiteCwd } from './agent.js';
 import { createAstroServer } from './astro-server.js';
+import { loadConfig } from './config.js';
+import { ensureWorkspace } from './workspace.js';
 import { createWSHandlers } from './ws-handler.js';
+
+// Load config and prepare workspace before starting
+const config = loadConfig();
+const websiteDir = await ensureWorkspace(config);
+setWebsiteCwd(websiteDir);
 
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -13,6 +21,7 @@ app.use('*', cors());
 app.get('/health', (c) => c.json({ status: 'ok' }));
 
 const wsHandlers = createWSHandlers();
+const astroServer = createAstroServer(websiteDir);
 
 app.get(
   '/ws',
@@ -30,8 +39,6 @@ app.get(
     },
   })),
 );
-
-const astroServer = createAstroServer();
 
 const PORT = 3000;
 

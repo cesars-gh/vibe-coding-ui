@@ -1,11 +1,11 @@
-import path from 'node:path';
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
 import { query } from '@anthropic-ai/claude-agent-sdk';
 
-const WEBSITE_CWD = path.resolve(
-  new URL('.', import.meta.url).pathname,
-  '../../website',
-);
+let WEBSITE_CWD: string;
+
+export function setWebsiteCwd(dir: string) {
+  WEBSITE_CWD = dir;
+}
 
 const SYSTEM_APPEND = `
 You are building an Astro website. The project is already set up at the current working directory.
@@ -19,6 +19,10 @@ Key conventions:
 
 Always write clean, well-structured Astro code. Prefer scoped styles in <style> tags.
 When creating new pages, import and use the Layout component.
+
+You can use git to commit and push your changes.
+Always commit with meaningful messages.
+The project is a git repo with a remote you can push to.
 `;
 
 export interface AgentSession {

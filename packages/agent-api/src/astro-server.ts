@@ -1,5 +1,4 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import path from 'node:path';
 
 export class AstroDevServer {
   private process: ChildProcess | null = null;
@@ -71,10 +70,6 @@ export class AstroDevServer {
   }
 }
 
-export function createAstroServer(): AstroDevServer {
-  const websiteDir = path.resolve(
-    new URL('.', import.meta.url).pathname,
-    '../../website',
-  );
+export function createAstroServer(websiteDir: string): AstroDevServer {
   return new AstroDevServer(websiteDir);
 }

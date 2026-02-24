@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "pnpm --filter agent-api dev",
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev:website": "pnpm --filter website dev",
     "dev:all": "pnpm --filter agent-api dev & pnpm --filter frontend dev & wait",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

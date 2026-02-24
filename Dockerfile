@@ -8,7 +8,6 @@ FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY packages/agent-api/package.json packages/agent-api/
 COPY packages/frontend/package.json packages/frontend/
-COPY packages/website/package.json packages/website/
 RUN pnpm install --frozen-lockfile
 
 # ---- Build frontend ----
@@ -23,8 +22,11 @@ COPY --from=frontend-build /app/packages/frontend/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
-# ---- App (agent-api + website) ----
+# ---- App (agent-api) ----
 FROM base AS app
+
+# Install git for workspace clone/pull and agent commits
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user (Claude Code blocks --dangerously-skip-permissions as root)
 RUN useradd -m -s /bin/bash appuser
@@ -35,19 +37,14 @@ COPY --from=deps /app ./
 # Copy source code and config
 COPY tsconfig.base.json ./
 COPY packages/agent-api/ packages/agent-api/
-COPY packages/website/ packages/website/
-
-# Disable Astro dev toolbar
-RUN pnpm --filter website exec astro preferences disable devToolbar
 
 # Hand ownership to appuser and switch
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Initialize git repo (Claude Code requires a git repo)
-RUN git config --global user.email "docker@localhost" \
-    && git config --global user.name "Docker" \
-    && git init && git add -A && git commit -m "init"
+# Configure git identity for agent commits
+RUN git config --global user.email "agent@vibe-coding.local" \
+    && git config --global user.name "Vibe Coding Agent"
 
 ENV NODE_OPTIONS="--max-old-space-size=512"
 EXPOSE 3000 4321
