@@ -23,7 +23,6 @@ export default function ChatPanel({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        borderRight: '1px solid var(--border)',
       }}
     >
       <div

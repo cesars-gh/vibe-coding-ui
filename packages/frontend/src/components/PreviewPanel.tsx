@@ -2,11 +2,19 @@ import { useCallback, useRef, useState } from 'react';
 
 interface PreviewPanelProps {
   astroStatus: { status: string; message?: string };
+  chatVisible: boolean;
+  onToggleChat: () => void;
 }
 
-const ASTRO_ORIGIN = 'http://localhost:4321';
+const ASTRO_ORIGIN =
+  import.meta.env.VITE_ASTRO_ORIGIN ||
+  `http://${window.location.hostname}:4321`;
 
-export default function PreviewPanel({ astroStatus }: PreviewPanelProps) {
+export default function PreviewPanel({
+  astroStatus,
+  chatVisible,
+  onToggleChat,
+}: PreviewPanelProps) {
   const isReady = astroStatus.status === 'ready';
   const [activePath, setActivePath] = useState('/');
   const [inputValue, setInputValue] = useState('/');
@@ -50,7 +58,27 @@ export default function PreviewPanel({ astroStatus }: PreviewPanelProps) {
           justifyContent: 'space-between',
         }}
       >
-        <span style={{ fontWeight: 600 }}>Preview</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={onToggleChat}
+            title={chatVisible ? 'Hide chat' : 'Show chat'}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border)',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              padding: '2px 6px',
+              borderRadius: 'var(--radius)',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {chatVisible ? '\u00AB' : '\u00BB'}
+          </button>
+          <span style={{ fontWeight: 600 }}>Preview</span>
+        </div>
         <span
           style={{
             fontSize: '12px',

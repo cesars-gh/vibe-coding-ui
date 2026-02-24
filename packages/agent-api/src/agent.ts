@@ -47,8 +47,8 @@ export async function* runAgent(
       prompt,
       options: {
         cwd: WEBSITE_CWD,
-        permissionMode: 'bypassPermissions',
-        allowDangerouslySkipPermissions: true,
+        permissionMode: 'acceptEdits',
+        allowedTools: ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash'],
         systemPrompt: {
           type: 'preset',
           preset: 'claude_code',

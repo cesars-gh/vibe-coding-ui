@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: .
+      target: app
+    ports:
+      - '3000:3000'
+      - '4321:4321'
+    env_file: .env
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=512
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      target: frontend
+    ports:
+      - '80:80'
+    depends_on:
+      - app
+    restart: unless-stopped
