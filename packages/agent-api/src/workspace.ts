@@ -7,9 +7,25 @@ import type { WorkspaceConfig } from './config.js';
 const execFile = promisify(execFileCb);
 
 function buildAuthUrl(repoUrl: string, token: string): string {
-  const url = new URL(repoUrl);
-  url.username = token;
-  return url.toString();
+  // Only inject token for HTTPS URLs; SSH URLs use key-based auth
+  try {
+    const url = new URL(repoUrl);
+    url.username = token;
+    return url.toString();
+  } catch {
+    // Not a valid URL (e.g. git@github.com:org/repo.git) — return as-is
+    console.warn(
+      '[workspace] Cannot inject token into non-HTTPS URL, skipping auth injection',
+    );
+    return repoUrl;
+  }
+}
+
+function getCloneUrl(repoUrl: string, token: string | undefined): string {
+  if (token) {
+    return buildAuthUrl(repoUrl, token);
+  }
+  return repoUrl;
 }
 
 async function run(cmd: string, args: string[], cwd?: string): Promise<string> {
@@ -24,6 +40,7 @@ export async function ensureWorkspace(
     config;
 
   const gitDir = path.join(workspaceDir, '.git');
+  const cloneUrl = getCloneUrl(websiteRepoUrl, websiteGitToken);
 
   if (!existsSync(gitDir)) {
     console.log(`[workspace] Cloning ${websiteRepoUrl} → ${workspaceDir}`);
@@ -32,23 +49,19 @@ export async function ensureWorkspace(
       '--branch',
       websiteRepoBranch,
       '--single-branch',
-      websiteRepoUrl,
+      cloneUrl,
       workspaceDir,
     ]);
   } else {
     console.log('[workspace] Existing workspace found, syncing with remote...');
+    // Update remote URL in case token changed
+    await run('git', ['remote', 'set-url', 'origin', cloneUrl], workspaceDir);
     await run('git', ['fetch', 'origin'], workspaceDir);
     await run(
       'git',
       ['reset', '--hard', `origin/${websiteRepoBranch}`],
       workspaceDir,
     );
-  }
-
-  // Set push auth if token provided
-  if (websiteGitToken) {
-    const authUrl = buildAuthUrl(websiteRepoUrl, websiteGitToken);
-    await run('git', ['remote', 'set-url', 'origin', authUrl], workspaceDir);
   }
 
   // Ensure git identity is configured for commits

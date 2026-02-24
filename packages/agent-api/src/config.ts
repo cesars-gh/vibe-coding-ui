@@ -8,6 +8,10 @@ export interface WorkspaceConfig {
 }
 
 export function loadConfig(): WorkspaceConfig {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is required. Set it in your .env file.');
+  }
+
   const websiteRepoUrl = process.env.WEBSITE_REPO_URL;
   if (!websiteRepoUrl) {
     throw new Error(

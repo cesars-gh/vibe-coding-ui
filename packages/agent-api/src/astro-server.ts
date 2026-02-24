@@ -54,10 +54,25 @@ export class AstroDevServer {
   }
 
   async stop(): Promise<void> {
-    if (!this.process) return;
-    this.process.kill('SIGTERM');
-    this.process = null;
+    const proc = this.process;
+    if (!proc) return;
     this.ready = false;
+
+    return new Promise<void>((resolve) => {
+      proc.on('exit', () => {
+        this.process = null;
+        resolve();
+      });
+      proc.kill('SIGTERM');
+      // Force kill after 5s if SIGTERM doesn't work
+      setTimeout(() => {
+        if (this.process === proc) {
+          proc.kill('SIGKILL');
+          this.process = null;
+          resolve();
+        }
+      }, 5_000);
+    });
   }
 
   async restart(): Promise<void> {

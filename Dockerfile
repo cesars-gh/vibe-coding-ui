@@ -38,8 +38,9 @@ COPY --from=deps /app ./
 COPY tsconfig.base.json ./
 COPY packages/agent-api/ packages/agent-api/
 
-# Hand ownership to appuser and switch
-RUN chown -R appuser:appuser /app
+# Create workspace dir and hand ownership to appuser
+RUN mkdir -p /app/workspace \
+    && chown -R appuser:appuser /app
 USER appuser
 
 # Configure git identity for agent commits
