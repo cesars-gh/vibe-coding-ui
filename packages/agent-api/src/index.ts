@@ -85,7 +85,7 @@ export function startServer(config: VibeCodingConfig) {
   });
 
   const server = serve({ fetch: app.fetch, port: config.port }, (info) => {
-    console.log(`\n  vibe-coding is running!`);
+    console.log(`\n  vibe-coding-ui is running!`);
     console.log(`  UI:  http://localhost:${info.port}`);
     console.log(`  CWD: ${config.cwd}\n`);
   });

@@ -1,24 +1,20 @@
 {
-  "name": "vibe-coding",
-  "version": "0.1.0",
+  "name": "vibe-coding-ui",
+  "version": "0.1.4",
   "type": "module",
-  "description": "AI-powered coding assistant UI — install as a dev dependency and run `vibe-coding start`",
+  "description": "AI-powered coding assistant UI — install globally and run `vibe-coding-ui start`",
   "bin": {
-    "vibe-coding": "./bin/cli.js"
+    "vibe-coding-ui": "./bin/cli.js"
   },
   "files": [
     "bin/",
     "dist/",
-    "scripts/",
-    "packages/agent-api/dist/",
-    "packages/agent-api/src/",
-    "packages/agent-api/tsconfig.json",
-    "packages/frontend/",
-    "tsconfig.base.json"
+    "packages/agent-api/dist/"
   ],
   "scripts": {
     "build": "pnpm --filter frontend build",
     "build:api": "pnpm --filter agent-api build",
+    "prepublishOnly": "pnpm build:api && pnpm build",
     "dev": "pnpm --filter agent-api dev",
     "dev:frontend": "pnpm --filter frontend dev",
     "lint": "biome check .",

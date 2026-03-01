@@ -33,7 +33,7 @@ if (!command || command === 'start') {
       ({ startServer } = await import('../packages/agent-api/src/index.js'));
     } catch (err) {
       console.error(
-        'Failed to load agent API. Did you run "pnpm build" and "pnpm build:api"?\n',
+        'Failed to load agent API. The package may be corrupted — try reinstalling with:\n  npm i -g vibe-coding-ui\n',
       );
       console.error(err);
       process.exit(1);
@@ -44,10 +44,10 @@ if (!command || command === 'start') {
   startServer(config);
 } else if (command === '--help' || command === '-h') {
   console.log(`
-  vibe-coding — AI-powered coding assistant UI
+  vibe-coding-ui — AI-powered coding assistant UI
 
   Usage:
-    vibe-coding start [--port 8000]
+    vibe-coding-ui start [--port 8000]
 
   Options:
     --port    Port to run the server on (default: 8000)
@@ -66,6 +66,6 @@ if (!command || command === 'start') {
   `);
 } else {
   console.error(`Unknown command: ${command}`);
-  console.error('Run "vibe-coding --help" for usage information.');
+  console.error('Run "vibe-coding-ui --help" for usage information.');
   process.exit(1);
 }

@@ -9,14 +9,14 @@ Vibe Coding provides an interactive chat interface where developers can describe
 ## Quick Start
 
 ```bash
-# Install as dev dependency
-npm install --save-dev vibe-coding
+# Install globally
+npm i -g vibe-coding-ui
 
 # Set your API key
 export ANTHROPIC_API_KEY=your_key_here
 
-# Start the interface
-npx vibe-coding start --port 8000
+# Start the interface from your project directory
+cd your-project && vibe-coding-ui start --port 8000
 ```
 
 ## Project Structure
@@ -68,7 +68,7 @@ vibe-coding/
 Parses command-line arguments, loads configuration, validates API key, and starts the server.
 
 ```bash
-vibe-coding start [--port 8000]
+vibe-coding-ui start [--port 8000]
 ```
 
 #### 2. Backend Server (`packages/agent-api/`)
@@ -211,7 +211,7 @@ pnpm dev
 
 ## Publishing
 
-The project is distributed as an npm package with a binary entry point. Users install it as a dev dependency and run via `npx vibe-coding start`.
+The project is distributed as an npm package with a binary entry point. Users install it globally and run via `vibe-coding-ui start`.
 
 ## WebSocket Protocol
 

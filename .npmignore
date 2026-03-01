@@ -1,0 +1,9 @@
+node_modules
+packages/frontend/
+packages/agent-api/src/
+packages/agent-api/tsconfig.json
+scripts/
+tsconfig.base.json
+pnpm-workspace.yaml
+pnpm-lock.yaml
+.env

@@ -1,7 +1,7 @@
 # Vibe Coding UI
 
-[![npm version](https://img.shields.io/npm/v/vibe-coding)](https://www.npmjs.com/package/vibe-coding)
-[![npm downloads](https://img.shields.io/npm/dm/vibe-coding)](https://www.npmjs.com/package/vibe-coding)
+[![npm version](https://img.shields.io/npm/v/vibe-coding-ui)](https://www.npmjs.com/package/vibe-coding-ui)
+[![npm downloads](https://img.shields.io/npm/dm/vibe-coding-ui)](https://www.npmjs.com/package/vibe-coding-ui)
 ![TypeScript](https://img.shields.io/badge/TypeScript-ready-2f74c0?logo=typescript)
 ![pnpm](https://img.shields.io/badge/pnpm-compatible-f69220?logo=pnpm)
 ![Server](https://img.shields.io/badge/Server-Hono-orange)
@@ -10,11 +10,10 @@ Your project’s friendly, browser-based Claude Code UI. Install it in any repo 
 
 ## Quick Start
 
-1) Install (as a dev dependency):
+1) Install globally:
 
 ```sh
-pnpm add -D vibe-coding
-# or: npm i -D vibe-coding
+npm i -g vibe-coding-ui
 ```
 
 2) Set your Anthropic API key (required):
@@ -24,12 +23,11 @@ export ANTHROPIC_API_KEY=your_key_here
 # or add it to a .env in your project
 ```
 
-3) Run the UI server (defaults to port 8000):
+3) Run the UI server from your project directory (defaults to port 8000):
 
 ```sh
-npx vibe-coding start
-# or: pnpm vibe-coding start
-# optional: vibe-coding start --port 3001
+cd your-project && vibe-coding-ui start
+# optional: vibe-coding-ui start --port 3001
 ```
 
 4) Open the app: http://localhost:8000
