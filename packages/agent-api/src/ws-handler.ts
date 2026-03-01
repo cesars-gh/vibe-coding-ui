@@ -28,9 +28,7 @@ function handleAssistantMessage(ws: WSContext, message: SDKMessage) {
       }>;
     };
     for (const block of apiMessage.content) {
-      if (block.type === 'text' && block.text) {
-        send(ws, { type: 'assistant_text', text: block.text });
-      }
+      // Skip text blocks — already delivered via stream_event deltas
       if (block.type === 'tool_use') {
         send(ws, {
           type: 'tool_use',
@@ -137,10 +135,11 @@ async function handlePrompt(ws: WSContext, message: string) {
   }
 }
 
-export function createWSHandlers() {
+export function createWSHandlers(previewUrl: string | null) {
   return {
-    onOpen(_event: Event, _ws: WSContext) {
+    onOpen(_event: Event, ws: WSContext) {
       console.log('[ws] client connected');
+      send(ws, { type: 'preview_config', previewUrl });
     },
     onMessage(event: MessageEvent<WSMessageReceive>, ws: WSContext) {
       let data: unknown;

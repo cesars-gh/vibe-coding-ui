@@ -1,29 +1,61 @@
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-export interface WorkspaceConfig {
-  websiteRepoUrl: string;
-  websiteRepoBranch: string;
-  workspaceDir: string;
-  websiteGitToken: string | undefined;
+export interface VibeCodingConfig {
+  cwd: string;
+  port: number;
+  preview?: {
+    url: string;
+  };
+  systemPrompt?: string;
 }
 
-export function loadConfig(): WorkspaceConfig {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY is required. Set it in your .env file.');
-  }
+interface ConfigFileSchema {
+  preview?: boolean;
+  previewUrl?: string;
+  systemPrompt?: string;
+  port?: number;
+}
 
-  const websiteRepoUrl = process.env.WEBSITE_REPO_URL;
-  if (!websiteRepoUrl) {
+export function loadConfigFile(cwd: string): ConfigFileSchema {
+  const configPath = path.join(cwd, '.vibecoding.json');
+  if (!existsSync(configPath)) return {};
+
+  try {
+    const raw = readFileSync(configPath, 'utf-8');
+    return JSON.parse(raw) as ConfigFileSchema;
+  } catch (err) {
+    console.warn(
+      `[config] Failed to parse .vibecoding.json: ${(err as Error).message}`,
+    );
+    return {};
+  }
+}
+
+export function resolveConfig(options: {
+  cwd: string;
+  port?: number;
+}): VibeCodingConfig {
+  if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error(
-      'WEBSITE_REPO_URL is required. Set it to the git clone URL of your website repo.',
+      'ANTHROPIC_API_KEY is required. Set it in your environment or .env file.',
     );
   }
 
-  const websiteRepoBranch = process.env.WEBSITE_REPO_BRANCH || 'main';
-  const workspaceDir = path.resolve(
-    process.env.WEBSITE_WORKSPACE_DIR || './workspace',
-  );
-  const websiteGitToken = process.env.WEBSITE_GIT_TOKEN || undefined;
+  const fileConfig = loadConfigFile(options.cwd);
 
-  return { websiteRepoUrl, websiteRepoBranch, workspaceDir, websiteGitToken };
+  const config: VibeCodingConfig = {
+    cwd: path.resolve(options.cwd),
+    port: options.port ?? fileConfig.port ?? 8000,
+  };
+
+  if (fileConfig.preview && fileConfig.previewUrl) {
+    config.preview = { url: fileConfig.previewUrl };
+  }
+
+  if (fileConfig.systemPrompt) {
+    config.systemPrompt = fileConfig.systemPrompt;
+  }
+
+  return config;
 }

@@ -1,0 +1,306 @@
+# Vibe Coding
+
+> AI-powered coding assistant UI installable as a dev dependency in any Node.js project
+
+## Overview
+
+Vibe Coding provides an interactive chat interface where developers can describe coding tasks in natural language and have Claude AI execute them directly on their project codebase. It features real-time streaming responses, file system access, and an optional live preview panel.
+
+## Quick Start
+
+```bash
+# Install as dev dependency
+npm install --save-dev vibe-coding
+
+# Set your API key
+export ANTHROPIC_API_KEY=your_key_here
+
+# Start the interface
+npx vibe-coding start --port 8000
+```
+
+## Project Structure
+
+```
+vibe-coding/
+├── bin/cli.js                 # CLI entry point
+├── packages/
+│   ├── agent-api/            # Backend WebSocket server
+│   │   └── src/
+│   │       ├── agent.ts      # Claude Agent integration
+│   │       ├── config.ts     # Configuration management
+│   │       ├── index.ts      # Hono server setup
+│   │       ├── ws-handler.ts # WebSocket message handling
+│   │       └── types.ts      # Type definitions
+│   └── frontend/             # React chat UI
+│       └── src/
+│           ├── App.tsx       # Main app with split layout
+│           ├── components/   # Chat and preview components
+│           └── hooks/        # WebSocket communication
+└── package.json              # Monorepo configuration
+```
+
+## Architecture
+
+### Technology Stack
+
+**Backend:**
+- Node.js with ES Modules
+- Hono - Lightweight web framework
+- @anthropic-ai/claude-agent-sdk - Claude integration
+- TypeScript with Zod validation
+- WebSocket for real-time communication
+
+**Frontend:**
+- React 19 with TypeScript
+- Vite 6 for build tooling
+- WebSocket client for agent communication
+- Responsive split-pane layout
+
+**Development:**
+- pnpm monorepo workspace
+- tsx for TypeScript execution
+- Biome for linting and formatting
+
+### Core Components
+
+#### 1. CLI Entry (`bin/cli.js`)
+Parses command-line arguments, loads configuration, validates API key, and starts the server.
+
+```bash
+vibe-coding start [--port 8000]
+```
+
+#### 2. Backend Server (`packages/agent-api/`)
+
+**Agent Module** (`agent.ts`):
+- Wraps Claude Agent SDK query function
+- Configures working directory for file operations
+- Supports custom system prompts
+- Enables tools: Read, Write, Edit, Glob, Grep, Bash
+- Maintains session state across conversations
+
+**Configuration** (`config.ts`):
+Supports `.vibecoding.json` configuration file:
+
+```json
+{
+  "preview": true,
+  "previewUrl": "http://localhost:3000",
+  "systemPrompt": "Custom instructions for the agent",
+  "port": 8000
+}
+```
+
+**Server** (`index.ts`):
+- Serves on port 8000 (configurable)
+- Routes:
+  - `/health` - Health check
+  - `/ws` - WebSocket endpoint
+  - `/assets/*` - Static assets
+  - `/*` - SPA fallback
+- Serves pre-built frontend from `dist/frontend`
+
+**WebSocket Handler** (`ws-handler.ts`):
+- Manages agent sessions
+- Handles message types:
+  - `prompt` - User request to agent
+  - `cancel` - Abort running task
+- Streams SDK messages to client:
+  - Text deltas (streaming response)
+  - Tool invocations
+  - Tool results
+  - Completion with cost/duration
+
+#### 3. Frontend UI (`packages/frontend/`)
+
+**Layout** (`App.tsx`):
+- Responsive split-pane with draggable divider
+- Chat panel + optional preview panel
+- Minimum width constraints
+
+**Chat Components**:
+- `ChatPanel` - Container with status indicator
+- `ChatInput` - Message input with send/cancel
+- `MessageList` - Auto-scrolling messages
+- `MessageItem` - Role-based styled messages
+
+**Preview Panel**:
+- Navigation bar with refresh and URL input
+- Iframe showing live preview
+- Toggle visibility
+
+**WebSocket Hook** (`useWebSocket.ts`):
+- Auto-reconnect with retry logic
+- Message processing and accumulation
+- Session management
+- Error handling
+
+### Message Flow
+
+```
+User Input
+    ↓
+ChatInput → useWebSocket.send()
+    ↓
+Backend /ws handler
+    ↓
+Claude Agent (file system access)
+    ↓
+SDK streaming messages
+    ↓
+WebSocket → Client
+    ↓
+MessageList UI update
+```
+
+## Key Features
+
+- **AI-Powered Code Generation** - Claude generates and modifies code from natural language
+- **Direct File System Access** - Agent can read, write, edit, and search project files
+- **Real-time Streaming** - Token-by-token response streaming
+- **Tool Execution** - Integrated file operations and bash commands
+- **Split-Pane Layout** - Optional live preview panel
+- **Session Persistence** - Multi-turn conversations with state
+- **Cost Tracking** - API usage cost and duration display
+- **Graceful Cancellation** - Stop running tasks mid-execution
+
+## Configuration
+
+### Environment Variables
+
+```bash
+ANTHROPIC_API_KEY=your_key_here  # Required
+```
+
+### Project Configuration
+
+Create `.vibecoding.json` in your project root:
+
+```json
+{
+  "preview": true,
+  "previewUrl": "http://localhost:3000",
+  "systemPrompt": "Additional instructions for the agent",
+  "port": 8000
+}
+```
+
+## Development
+
+### Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build frontend
+pnpm build
+
+# Run in development
+pnpm dev
+```
+
+### Package Scripts
+
+- `pnpm build` - Builds frontend to `dist/frontend`
+- `pnpm dev` - Runs development server with hot reload
+- `pnpm typecheck` - Type checking across workspace
+- `pnpm lint` - Code linting with Biome
+- `pnpm format` - Code formatting with Biome
+
+## Publishing
+
+The project is distributed as an npm package with a binary entry point. Users install it as a dev dependency and run via `npx vibe-coding start`.
+
+## WebSocket Protocol
+
+### Client → Server
+
+**Prompt Message:**
+```json
+{
+  "type": "prompt",
+  "content": "Add a new feature..."
+}
+```
+
+**Cancel Message:**
+```json
+{
+  "type": "cancel"
+}
+```
+
+### Server → Client
+
+**Agent Text:**
+```json
+{
+  "type": "agent_text",
+  "content": "I'll help you...",
+  "delta": "help"
+}
+```
+
+**Tool Invocation:**
+```json
+{
+  "type": "tool_invocation",
+  "toolName": "Read",
+  "toolInput": "{\"file_path\": \"src/app.ts\"}"
+}
+```
+
+**Tool Result:**
+```json
+{
+  "type": "tool_result",
+  "content": "File contents..."
+}
+```
+
+**Session Start/Stop:**
+```json
+{
+  "type": "session_start"
+}
+```
+
+**Agent Complete:**
+```json
+{
+  "type": "agent_complete",
+  "cost": 0.025,
+  "duration": 3.5
+}
+```
+
+## Agent Capabilities
+
+The Claude Agent has access to these tools:
+
+- **Read** - Read file contents
+- **Write** - Create or overwrite files
+- **Edit** - Make targeted edits to files
+- **Glob** - Find files by pattern
+- **Grep** - Search file contents
+- **Bash** - Execute shell commands
+
+All operations run in the project's root directory where the CLI is executed.
+
+## Recent Changes
+
+The project recently transitioned from Docker-based deployment to npm package distribution:
+- Removed Docker configuration
+- Simplified to single-port server (8000)
+- Made installable as dev dependency
+- Decoupled from Git workspace requirements
+
+## Contributing
+
+This is a monorepo managed with pnpm workspaces. The main packages are:
+- `agent-api` - Backend server and Claude integration
+- `frontend` - React UI application
+
+Use Biome for code formatting and linting to maintain consistency.

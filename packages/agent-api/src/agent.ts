@@ -1,28 +1,24 @@
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk';
 import { query } from '@anthropic-ai/claude-agent-sdk';
 
-let WEBSITE_CWD: string;
+let AGENT_CWD: string;
+let CUSTOM_SYSTEM_PROMPT: string | undefined;
 
-export function setWebsiteCwd(dir: string) {
-  WEBSITE_CWD = dir;
+export function setAgentCwd(dir: string) {
+  AGENT_CWD = dir;
 }
 
-const SYSTEM_APPEND = `
-You are building an Astro website. The project is already set up at the current working directory.
+export function setCustomSystemPrompt(prompt: string | undefined) {
+  CUSTOM_SYSTEM_PROMPT = prompt;
+}
 
-Key conventions:
-- Pages go in src/pages/ (each .astro file = a route)
-- Layouts go in src/layouts/ (Layout.astro is the base HTML shell)
-- Components go in src/components/
-- Static assets go in public/
-- The dev server has HMR, so changes appear instantly in the browser preview
+const DEFAULT_SYSTEM_APPEND = `
+You are working on a software project. The project is already set up at the current working directory.
 
-Always write clean, well-structured Astro code. Prefer scoped styles in <style> tags.
-When creating new pages, import and use the Layout component.
-
+Always write clean, well-structured code.
+When creating or modifying files, follow existing patterns and conventions in the codebase.
 You can use git to commit and push your changes.
 Always commit with meaningful messages.
-The project is a git repo with a remote you can push to.
 `;
 
 export interface AgentSession {
@@ -50,13 +46,13 @@ export async function* runAgent(
     const conversation = query({
       prompt,
       options: {
-        cwd: WEBSITE_CWD,
+        cwd: AGENT_CWD,
         permissionMode: 'acceptEdits',
         allowedTools: ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash'],
         systemPrompt: {
           type: 'preset',
           preset: 'claude_code',
-          append: SYSTEM_APPEND,
+          append: CUSTOM_SYSTEM_PROMPT ?? DEFAULT_SYSTEM_APPEND,
         },
         settingSources: ['project'],
         includePartialMessages: true,

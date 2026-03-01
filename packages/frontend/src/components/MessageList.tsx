@@ -25,7 +25,7 @@ export default function MessageList({ messages }: MessageListProps) {
           padding: '20px',
         }}
       >
-        Send a message to start building your Astro site.
+        Send a message to start coding.
       </div>
     );
   }

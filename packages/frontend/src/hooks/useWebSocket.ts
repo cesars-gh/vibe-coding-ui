@@ -8,21 +8,13 @@ export interface Message {
   timestamp: number;
 }
 
-interface AstroStatus {
-  status: 'starting' | 'ready' | 'error';
-  message?: string;
-}
-
-const WS_URL =
-  import.meta.env.VITE_WS_URL || `ws://${window.location.hostname}:3000/ws`;
+const WS_URL = `ws://${window.location.host}/ws`;
 
 export function useWebSocket() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isAgentRunning, setIsAgentRunning] = useState(false);
-  const [astroStatus, setAstroStatus] = useState<AstroStatus>({
-    status: 'starting',
-  });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const currentAssistantRef = useRef<string>('');
   const currentAssistantIdRef = useRef<string | null>(null);
@@ -144,8 +136,8 @@ export function useWebSocket() {
           }
           break;
 
-        case 'astro_status':
-          setAstroStatus({ status: msg.status, message: msg.message });
+        case 'preview_config':
+          setPreviewUrl(msg.previewUrl ?? null);
           break;
 
         case 'error':
@@ -202,7 +194,7 @@ export function useWebSocket() {
     messages,
     isConnected,
     isAgentRunning,
-    astroStatus,
+    previewUrl,
     sendPrompt,
     cancel,
   };

@@ -11,10 +11,12 @@ export default function App() {
     messages,
     isConnected,
     isAgentRunning,
-    astroStatus,
+    previewUrl,
     sendPrompt,
     cancel,
   } = useWebSocket();
+
+  const hasPreview = !!previewUrl;
 
   const [chatWidth, setChatWidth] = useState(() =>
     Math.max(window.innerWidth / 2, MIN_CHAT_WIDTH),
@@ -53,6 +55,22 @@ export default function App() {
     };
   }, [isDragging]);
 
+  // No preview — chat takes full width
+  if (!hasPreview) {
+    return (
+      <div style={{ height: '100vh', width: '100vw' }}>
+        <ChatPanel
+          messages={messages}
+          isConnected={isConnected}
+          isAgentRunning={isAgentRunning}
+          onSend={sendPrompt}
+          onCancel={cancel}
+        />
+      </div>
+    );
+  }
+
+  // Split layout with preview
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
       {chatVisible && (
@@ -97,7 +115,7 @@ export default function App() {
           <div style={{ position: 'absolute', inset: 0, zIndex: 10 }} />
         )}
         <PreviewPanel
-          astroStatus={astroStatus}
+          previewUrl={previewUrl}
           chatVisible={chatVisible}
           onToggleChat={() => setChatVisible((v) => !v)}
         />

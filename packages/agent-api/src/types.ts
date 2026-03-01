@@ -22,9 +22,5 @@ export type ServerMessage =
   | { type: 'tool_use'; toolName: string; toolInput: unknown }
   | { type: 'tool_result'; toolName: string; output: string }
   | { type: 'result'; text: string; costUsd?: number; durationMs?: number }
-  | {
-      type: 'astro_status';
-      status: 'starting' | 'ready' | 'error';
-      message?: string;
-    }
+  | { type: 'preview_config'; previewUrl: string | null }
   | { type: 'error'; message: string };

@@ -1,22 +1,44 @@
 {
   "name": "vibe-coding",
-  "private": true,
+  "version": "0.1.0",
   "type": "module",
+  "description": "AI-powered coding assistant UI — install as a dev dependency and run `vibe-coding start`",
+  "bin": {
+    "vibe-coding": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "packages/agent-api/src/",
+    "packages/agent-api/tsconfig.json",
+    "tsconfig.base.json"
+  ],
   "scripts": {
+    "build": "pnpm --filter frontend build",
+    "build:api": "pnpm --filter agent-api build",
     "dev": "pnpm --filter agent-api dev",
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev:all": "pnpm --filter agent-api dev & pnpm --filter frontend dev & wait",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.0",
+    "@hono/node-server": "^1.14.0",
+    "@hono/node-ws": "^1.1.0",
+    "hono": "^4.7.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
       "sharp"
     ]
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.4"
   }
 }
