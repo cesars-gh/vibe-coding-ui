@@ -17,8 +17,6 @@
     "tsconfig.base.json"
   ],
   "scripts": {
-    "preinstall": "node scripts/preinstall.js",
-    "prepare": "node scripts/prepare.js",
     "build": "pnpm --filter frontend build",
     "build:api": "pnpm --filter agent-api build",
     "dev": "pnpm --filter agent-api dev",
