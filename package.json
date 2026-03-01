@@ -9,11 +9,15 @@
   "files": [
     "bin/",
     "dist/",
+    "scripts/",
+    "packages/agent-api/dist/",
     "packages/agent-api/src/",
     "packages/agent-api/tsconfig.json",
+    "packages/frontend/",
     "tsconfig.base.json"
   ],
   "scripts": {
+    "prepare": "node scripts/prepare.js",
     "build": "pnpm --filter frontend build",
     "build:api": "pnpm --filter agent-api build",
     "dev": "pnpm --filter agent-api dev",
