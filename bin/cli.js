@@ -19,9 +19,25 @@ if (!command || command === 'start') {
 
   const cwd = resolve(process.cwd());
 
-  // Dynamically import the server (tsx handles TS when in dev)
-  const { resolveConfig } = await import('../packages/agent-api/src/config.js');
-  const { startServer } = await import('../packages/agent-api/src/index.js');
+  // Prefer built JS when installed, fall back to source during dev
+  let resolveConfig;
+  let startServer;
+  try {
+    ({ resolveConfig } = await import('../packages/agent-api/dist/config.js'));
+    ({ startServer } = await import('../packages/agent-api/dist/index.js'));
+  } catch {
+    // Note: for dev, run via tsx so TS is handled
+    try {
+      ({ resolveConfig } = await import('../packages/agent-api/src/config.js'));
+      ({ startServer } = await import('../packages/agent-api/src/index.js'));
+    } catch (err) {
+      console.error(
+        'Failed to load agent API. Did you run "pnpm build" and "pnpm build:api"?\n',
+      );
+      console.error(err);
+      process.exit(1);
+    }
+  }
 
   const config = resolveConfig({ cwd, port });
   startServer(config);

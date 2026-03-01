@@ -303,4 +303,4 @@ This is a monorepo managed with pnpm workspaces. The main packages are:
 - `agent-api` - Backend server and Claude integration
 - `frontend` - React UI application
 
-Use Biome for code formatting and linting to maintain consistency.
+Always use Biome for code formatting and linting to maintain consistency.
